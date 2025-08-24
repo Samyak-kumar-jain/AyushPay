@@ -1,11 +1,16 @@
 import { Outlet } from "react-router-dom";
 import Navbar from "../Components/Common/Navbar.jsx";
 import SubmitButton from "../Components/Common/Button.jsx";
+import support from "../assets/Support.png";
+import {useSubscription} from "../Hooks/useSubsription.jsx"
 
 const HomePage = () => {
+  const {isPlanLoading} = useSubscription()
+  
   return (
-    <div className="flex justify-center">
-      <div className="w-full max-w-[390px] h-[100vh] border border-gray-200 fixed overflow-hidden rounded-[12px] flex flex-col">
+    <div className="flex justify-center ">
+      {/* Main App Container */}
+      <div className="w-full max-w-[390px] h-[100vh] border border-gray-200 relative overflow-hidden rounded-[12px] flex flex-col bg-white">
         <Navbar />
 
         {/* Scrollable content */}
@@ -14,9 +19,20 @@ const HomePage = () => {
         </div>
 
         {/* Submit button fixed at bottom */}
-        <div className="py-[17px] px-[42px] shadow-sm border border-gray-200">
+        {
+          !isPlanLoading ? (<><div className="py-[17px] px-[42px] shadow-sm border border-gray-200 bg-white z-20">
           <SubmitButton />
-        </div>
+        </div></>) : null
+        }
+
+        {/* Support Icon inside container */}
+        {
+          !isPlanLoading ? (<><img
+          src={support}
+          alt="Support"
+          className="w-12 h-12 object-contain absolute right-4 bottom-[120px] z-50 cursor-pointer hover:scale-110 transition-transform"
+        /></>) : null
+        }
       </div>
     </div>
   );

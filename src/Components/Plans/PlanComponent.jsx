@@ -2,6 +2,7 @@ import React from "react";
 import PlansBenifit from "./PlansBenifit.jsx";
 import AyushPayLoader from "../Common/AyuspayLoader.jsx";
 import { usePlans } from "../../Hooks/UsePlan.jsx"; // 👈 import context
+import checkMark from "../../assets/CheckMark.png"
 
 export default function PlansCard() {
   // 👇 Pull everything from context instead of local state
@@ -21,18 +22,18 @@ export default function PlansCard() {
                 className={`relative w-[100px] h-[130px] text-[10px] rounded-[12px] flex flex-col justify-between px-[8px] py-[20px] cursor-pointer transition 
                   ${
                     isSelected
-                      ? "bg-[linear-gradient(135deg,#374295,#366BD1)] text-white"
-                      : "bg-white border border-gray-300 text-gray-800"
+                      ? "bg-[linear-gradient(135deg,#374295,#366BD1)] text-white "
+                      : "bg-white border-[0.75px] border-[#4E4E4C] text-gray-800"
                   }`}
               >
                 {/* Best Value Tag */}
                 {plan.tag && (
                   <span
-                    className={`absolute -top-1 left-4 text-[11px] font-semibold px-2 py-0.5 rounded-sm 
+                    className={`absolute -top-1 left-3.5 text-[11px] font-semibold px-2 py-0.5 rounded-sm 
                     ${
                       isSelected
-                        ? "bg-green-400 text-blue-900"
-                        : "text-white bg-gray-600"
+                        ? "bg-green-400 text-blue-900 shadow-[0_0_4px_0_rgba(0,0,0,0.35)]"
+                        : "text-white bg-gray-600 shadow-[0_0_4px_0_rgba(0,0,0,0.35)]"
                     }`}
                   >
                     {plan.tag}
@@ -55,8 +56,8 @@ export default function PlansCard() {
                 {/* Tick for Selected */}
                 {isSelected && (
                   <div className="flex justify-end">
-                    <div className="w-4 h-4 rounded-full bg-white flex items-center justify-center shadow">
-                      <span className="text-blue-600 font-bold text-lg">✓</span>
+                    <div className="w-4 h-4 rounded-full bg-white flex items-center justify-center shadow-[0_0_4px_0_rgba(0,0,0,0.35)]">
+                      <img src={checkMark} alt="checkmark"></img>
                     </div>
                   </div>
                 )}

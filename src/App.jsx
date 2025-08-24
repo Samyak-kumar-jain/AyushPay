@@ -11,6 +11,10 @@ import PlanPage from './Pages/PlanPage';
 import { Payment } from './Pages/Payment';
 import { PlansProvider } from './Context/PaymentContext';
 import RouteGuard from "./Components/Protected/PrivateRoute.jsx"; // improved
+import Dashboard from './Pages/Dashboard.jsx';
+import PlanBanner from './Components/Plans/PlanBanner.jsx';
+import { PlanProvider } from './Context/PlanContext.jsx';
+import { BuyPlanProvider } from './Context/BuyPlanContext.jsx';
 
 function App() {
   const router = createBrowserRouter([
@@ -43,6 +47,15 @@ function App() {
             <Payment />
           </RouteGuard>
         )
+      },
+      {
+        path:"dashboard",
+        element:(
+          <RouteGuard type="private" loginPath="/">
+            <Dashboard/>
+          </RouteGuard>
+
+        )
       }
     ]
   }
@@ -53,7 +66,17 @@ function App() {
       <OtpProvider>
         <FormProvider>
           <PlansProvider>
-            <RouterProvider router={router} />
+            <PlanProvider>
+              <BuyPlanProvider>
+                <RouterProvider router={router} />
+              </BuyPlanProvider>
+                        
+              
+                  
+            </PlanProvider>
+                
+            
+            
           </PlansProvider>
         </FormProvider>
       </OtpProvider>

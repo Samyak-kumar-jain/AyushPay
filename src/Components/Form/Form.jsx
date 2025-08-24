@@ -5,13 +5,13 @@ const FormComponent = () => {
   const { formData, errors, handleChange, handleSubmit } = useContext(FormContext);
 
   return (
-    <div className="w-[350px] px-[23px] py-[15px] bg-white rounded-xl shadow-md">
+    <div className="w-[350px] px-[22px] py-[18px] bg-white rounded-xl shadow-md space-y-[13px]">
       <form onSubmit={handleSubmit} className="space-y-[16px]">
         {/* First Name */}
         <div className="relative">
           <label
             htmlFor="firstName"
-            className="absolute -top-2 left-3 text-[13px] bg-white px-1 text-gray-600"
+            className="absolute -top-2 left-3 text-[12px] bg-white px-1 text-gray-600"
           >
             First Name<span>*</span>
           </label>
@@ -22,7 +22,7 @@ const FormComponent = () => {
             value={formData.firstName}
             onChange={handleChange}
             placeholder="Enter Your First Name"
-            className={`w-full rounded-[12px] border px-4 py-3 text-gray-700 placeholder-gray-500 focus:outline-none ${
+            className={`w-full text-[14px] rounded-[12px] border px-4 py-3 text-gray-700 placeholder-gray-500 focus:outline-none ${
               errors.firstName ? "border-red-500" : "border-[#4E4E4C80]"
             }`}
           />
@@ -35,7 +35,7 @@ const FormComponent = () => {
         <div className="relative">
           <label
             htmlFor="lastName"
-            className="absolute -top-2 left-3 text-[13px] bg-white px-1 text-gray-600"
+            className="absolute -top-2 left-3 text-[12px] bg-white px-1 text-gray-600"
           >
             Last Name<span>*</span>
           </label>
@@ -46,7 +46,7 @@ const FormComponent = () => {
             value={formData.lastName}
             onChange={handleChange}
             placeholder="Enter Your Last Name"
-            className={`w-full rounded-[12px] border px-4 py-3 text-gray-700 placeholder-gray-500 focus:outline-none ${
+            className={`w-full rounded-[12px] text-[14px] border px-4 py-3 text-gray-700 placeholder-gray-500 focus:outline-none ${
               errors.lastName ? "border-red-500" : "border-[#4E4E4C80]"
             }`}
           />
@@ -59,7 +59,7 @@ const FormComponent = () => {
         <div className="relative">
           <label
             htmlFor="email"
-            className="absolute -top-2 left-3 text-[13px] bg-white px-1 text-gray-600"
+            className="absolute -top-2 left-3 text-[12px] bg-white px-1 text-gray-600"
           >
             Email Id
           </label>
@@ -70,7 +70,7 @@ const FormComponent = () => {
             value={formData.email}
             onChange={handleChange}
             placeholder="Enter Your Email Id"
-            className={`w-full rounded-[12px] border px-4 py-3 text-gray-700 placeholder-gray-500 focus:outline-none ${
+            className={`w-full rounded-[12px] text-[14px] border px-4 py-3 text-gray-700 placeholder-gray-500 focus:outline-none ${
               errors.email ? "border-red-500" : "border-[#4E4E4C80]"
             }`}
           />

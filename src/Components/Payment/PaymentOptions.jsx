@@ -1,5 +1,5 @@
 import wallet from "../../assets/Wallet.png";
-import upi from "../../assets/Upi.png";
+import upi from "../../assets/upi.png";
 import { useState } from "react";
 
 export const PaymentOptions = () => {

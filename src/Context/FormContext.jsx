@@ -38,7 +38,7 @@ export const FormProvider = ({ children }) => {
     e.preventDefault();
     if (validate()) {
       localStorage.setItem("formData", JSON.stringify(formData));
-      alert("Form submitted successfully ✅");
+      
       console.log("Form Data:", formData);
       return true;
     }

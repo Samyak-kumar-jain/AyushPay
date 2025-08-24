@@ -2,7 +2,7 @@ import React from "react";
 
 function MedicalLoanCard() {
   return (
-    <div className="max-w-[350px] w-full bg-[#F1F6FE] h-[138px] rounded-[12px]  px-[8px] py-[19px] text-center relative">
+    <div className="max-w-[350px] w-full bg-[#F1F6FE] rounded-[12px]  px-[8px] py-[19px] text-center relative">
       {/* Heading with * */}
       <h2 className="font-inter text-[24px] leading-[115%]">
         <span className="font-bold text-[#4298C8]">

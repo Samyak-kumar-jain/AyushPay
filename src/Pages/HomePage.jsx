@@ -10,7 +10,7 @@ const HomePage = () => {
   return (
     <div className="flex justify-center ">
       {/* Main App Container */}
-      <div className="w-full max-w-[390px] h-[100vh] border border-gray-200 relative overflow-hidden rounded-[12px] flex flex-col bg-white">
+<div className="w-full max-w-[390px] h-screen border border-gray-200 relative overflow-hidden rounded-[12px] flex flex-col bg-white">
         <Navbar />
 
         {/* Scrollable content */}

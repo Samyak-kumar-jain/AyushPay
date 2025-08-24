@@ -41,53 +41,59 @@ const useSubmitButtonLogic = () => {
   const isPhoneValid = () => phone && phone.trim() !== "";
   const isOtpValid = () => otp.join("").length === 4;
 
-  const handleClick = (e) => {
-    e.preventDefault();
+const handleClick = (e) => {
+  e.preventDefault();
 
-    const path = location.pathname;
+  const path = location.pathname;
 
-    if (path.includes("/fill-details")) {
-      if (handleFormSubmit(e)) navigate("/plans");
-      return;
+  if (path === "/dashboard") {
+    // Do nothing on dashboard
+    return;
+  }
+
+  if (path.includes("/fill-details")) {
+    if (handleFormSubmit(e)) navigate("/plans");
+    return;
+  }
+
+  if (path === "/plans") {
+    if (selectedPlanObj) {
+      buyPlan(selected);
+      navigate("/plans/payment-page");
+    } else {
+      alert("Please select a plan before buying!");
     }
+    return;
+  }
 
-    if (location.pathname === "/plans") {
-      if (selectedPlanObj) {
-        buyPlan(selected);
-        navigate("/plans/payment-page");
-      } else {
-        alert("Please select a plan before buying!");
-      }
-      return;
+  if (path === "/plans/payment-page") {
+    if (handleBuyPlan(e)) {
+      localStorage.setItem("purchasedPlan", JSON.stringify(selectedPlanObj));
+      setIsPlanLoading(true);
+      navigate("/dashboard");
+      setTimeout(() => {
+        setIsPlanLoading(false);
+        setPlan(selectedPlanObj);
+      }, 2000);
     }
+    return;
+  }
 
-    if (location.pathname === "/plans/payment-page") {
-      if (handleBuyPlan(e)) {
-        localStorage.setItem("purchasedPlan", JSON.stringify(selectedPlanObj));
-        setIsPlanLoading(true);
-        navigate("/dashboard");
-        setTimeout(() => {
-          setIsPlanLoading(false);
-          setPlan(selectedPlanObj);
-        }, 2000);
-      }
-      return;
-    }
+  if (loginMode === "userid") {
+    if (handleAuthSubmit(e)) navigate("/fill-details");
+    return;
+  }
 
-    if (loginMode === "userid") {
-      if (handleAuthSubmit(e)) navigate("/fill-details");
-      return;
+  if (loginMode === "phone") {
+    if (step === 1) {
+      handleGetOtp(e);
+    } else if (step === 2 && handleVerifyOtp(e)) {
+      navigate("/fill-details");
     }
+    return;
+  }
+};
 
-    if (loginMode === "phone") {
-      if (step === 1) {
-        handleGetOtp(e);
-      } else if (step === 2 && handleVerifyOtp(e)) {
-        navigate("/fill-details");
-      }
-      return;
-    }
-  };
 
   const getButtonText = () => {
     if (location.pathname.includes("/fill-details")) return "View Plans";

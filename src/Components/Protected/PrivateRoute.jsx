@@ -1,24 +1,27 @@
-import { useState, useEffect } from "react";
-import { Navigate } from "react-router-dom";
+import { useState, useEffect, useContext } from "react";
+import { Navigate, useParams } from "react-router-dom";
+import { OtpContext } from "../../Context/OtpContext";
 
-const RouteGuard = ({
-  children,
-  type = "private",
-  redirectPath = "/fill-details",
-  loginPath = "/",
-}) => {
+const RouteGuard = ({ children, type = "private" }) => {
+  const { anchor } = useParams();
+  const { authToken: contextToken, applicationId: contextAppId } = useContext(OtpContext);
+
   const [authChecked, setAuthChecked] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    // ✅ Check auth from localStorage in a safe boolean way
-    const authFlag = localStorage.getItem("authenticated");
-    setIsAuthenticated(authFlag === "true"); // ensure strict boolean
-    setAuthChecked(true);
-  }, []);
+    const authToken = contextToken || localStorage.getItem("authToken");
+    const applicationId = contextAppId || localStorage.getItem("applicationId");
 
-  // ✅ While auth is being checked, render nothing (or loader)
-  if (!authChecked) return null; // could replace null with <Loader /> if you want
+    setIsAuthenticated(!!authToken && !!applicationId);
+    setAuthChecked(true);
+  }, [contextToken, contextAppId]);
+
+  if (!authChecked) return null; // could show loader
+
+  // ✅ Full absolute redirect path
+  const loginPath = `/${anchor}/subscription`;
+  const redirectPath = `/pre_approved_share_details/${anchor}/pre-approved`;
 
   // Private route logic
   if (type === "private" && !isAuthenticated) {
@@ -30,7 +33,6 @@ const RouteGuard = ({
     return <Navigate to={redirectPath} replace />;
   }
 
-  // ✅ Authorized / allowed route
   return <>{children}</>;
 };
 

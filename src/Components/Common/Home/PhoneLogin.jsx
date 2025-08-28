@@ -19,6 +19,7 @@ export default function TwoStepForm() {
     handleKeyDown,
     setStep,
     setOtp,
+    handleResendOtp
   } = useContext(OtpContext);
 
   const { handleToggleLogin } = useContext(AuthContext); // switch to userid login
@@ -106,6 +107,7 @@ export default function TwoStepForm() {
             <span
               className="text-[#4298C8] font-medium cursor-pointer"
               // Resend OTP logic can be triggered separately
+              onClick={handleResendOtp}
             >
               Resend OTP
             </span>

@@ -14,31 +14,30 @@ export const initiatePaymentAPI = async (payload, authToken) => {
     );
 
     const data = await response.json();
-
-    // Extract the order from the nested response
     const order = data?.msg?.response_body;
 
     if (!order?.id) {
-      return { success: false, error: "Failed to create order" };
+      return { status: "failed", error: "Failed to create order" };
     }
 
     // 2️⃣ Razorpay payment flow
     const result = await new Promise((resolve) => {
       const options = {
         key: "rzp_test_Me092IVDqsmT2R",
-        amount: order.amount, // amount in paise
+        amount: order.amount,
         currency: order.currency,
         name: payload.name || "Your App",
-        description: payload.amount,
         order_id: order.id,
         handler: function (res) {
           console.log("Payment Success:", res);
-          resolve({ success: true, data: res });
+          resolve({ status: "success", data: res });
         },
+
+        
         modal: {
           ondismiss: function () {
             console.log("Payment popup closed");
-            resolve({ success: false, error: "Payment cancelled" });
+            resolve({ status: "cancel" });
           },
         },
         prefill: {
@@ -52,12 +51,17 @@ export const initiatePaymentAPI = async (payload, authToken) => {
 
       const rzp = new window.Razorpay(options);
       rzp.open();
+
+      rzp.on("payment.failed", function (response) {
+        console.error("Payment failed:", response.error);
+        resolve({ status: "failed", error: response.error });
+      });
     });
 
-    return result; // { success: true/false, data/error }
+    return result; // { status: "success" | "cancel" | "failed", data?, error? }
 
   } catch (error) {
     console.error("Payment initiation failed:", error);
-    return { success: false, error: error.message };
+    return { status: "failed", error: error.message };
   }
 };

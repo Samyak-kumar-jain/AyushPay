@@ -16,84 +16,102 @@ const useSubmitButtonLogic = () => {
   const { handleSubmit: handleFormSubmit, formData: detailsFormData } =
     useContext(FormContext);
 
-  const { subscriptions, buyPlan, purchasedPlan } =
+  const { subscriptions, buyPlan, selectedPlan, purchasedPlan } =
     useContext(SubscriptionContext);
 
   const navigate = useNavigate();
   const location = useLocation();
+  const path = location.pathname;
 
-  const isDetailsFormValid = () =>
-    detailsFormData &&
-    Object.values(detailsFormData).every(
-      (value) =>
-        value !== undefined &&
-        value !== null &&
-        value.toString().trim() !== ""
-    );
+  /** ------------------ Validators ------------------ */
+ const isDetailsFormValid = () =>
+   detailsFormData &&
+  ["firstName", "lastName"].every(
+    (key) =>  detailsFormData[key] !== undefined &&  detailsFormData[key] !== null &&  detailsFormData[key].toString().trim() !== ""
+  );
 
   const isAuthFormValid = () =>
-    authFormData.userId?.trim() && authFormData.password?.trim();
+    Boolean(authFormData.userId?.trim() && authFormData.password?.trim());
 
-  const isPhoneValid = () => phone && phone.trim() !== "";
-  const isOtpValid = () => otp.join("").length === 4;
+  const isPhoneValid = () => Boolean(phone?.trim());
+  const isOtpValid = () => Array.isArray(otp) && otp.join("").length === 4;
 
+  /** ------------------ Handlers ------------------ */
   const handleClick = async (e) => {
     e.preventDefault();
-    const path = location.pathname;
 
+    // Prevent action on dashboard
     if (path === "/dashboard") return;
 
+    // 1️⃣ Fill Details → Plans
     if (path.includes(`/pre_approved_share_details/${anchor}/pre-approved`)) {
-      if (handleFormSubmit(e)) navigate(`/${anchor}/pre_approved_buy_subscription`);
+      const success = handleFormSubmit(e);
+      if (success) navigate(`/${anchor}/pre_approved_buy_subscription`);
       return;
     }
 
-    // ✅ Buy subscription only navigates on successful payment
-    if (path === `/${anchor}/pre_approved_buy_subscription`) {
-      const selectedPlan = subscriptions[0]; // pick based on UI
-      if (!selectedPlan) {
-        alert("Please select a plan before buying!");
-        return;
-      }
+    // 2️⃣ Buy Subscription → Dashboard (only on success)
+  if (path === `/${anchor}/pre_approved_buy_subscription`) {
+  if (!selectedPlan) {
+    alert("Please select a plan before buying!");
+    return;
+  }
 
-      const paymentSuccess = await buyPlan(selectedPlan); // await payment
-      if (paymentSuccess) {
-        navigate("/dashboard"); // only navigate on success
-      }
-      return;
-    }
+  const paymentResult = await buyPlan(selectedPlan);
 
+  if (paymentResult?.status === "success") {
+    navigate("/dashboard");
+  } else if (paymentResult?.status === "cancel") {
+    // 👉 Do nothing or show message
+    navigate(`/${anchor}/pre_approved_buy_subscription`);
+  } else {
+    alert("Payment failed. Please try again.");
+  }
+
+  return;
+}
+
+
+    // 3️⃣ Login with UserID
     if (loginMode === "userid") {
-      if (handleAuthSubmit(e)) navigate("/fill-details");
+      const success = handleAuthSubmit(e);
+      if (success) navigate("/fill-details");
       return;
     }
 
+    // 4️⃣ Login with Phone
     if (loginMode === "phone") {
       if (step === 1) {
         handleGetOtp(e);
-      } else if (step === 2 && handleVerifyOtp(e)) {
-        navigate(`/pre_approved_share_details/${anchor}/pre-approved`);
+      } else if (step === 2) {
+        const verified = handleVerifyOtp(e);
+        if (verified) navigate(`/pre_approved_share_details/${anchor}/pre-approved`);
       }
       return;
     }
   };
 
+  /** ------------------ Button Label ------------------ */
   const getButtonText = () => {
-    if (location.pathname.includes(`/pre_approved_share_details/${anchor}/pre-approved`)) return "View Plans";
-    if (location.pathname === `/${anchor}/pre_approved_buy_subscription`) return "Buy Plan";
-    if (location.pathname === "/dashboard") return "CHECK PLAN DETAILS";
+    if (path.includes(`/pre_approved_share_details/${anchor}/pre-approved`))
+      return "View Plans";
+    if (path === `/${anchor}/pre_approved_buy_subscription`) return "Buy Plan";
+    if (path === "/dashboard") return "CHECK PLAN DETAILS";
     if (loginMode === "userid") return "Login";
     if (loginMode === "phone") return step === 1 ? "GET OTP" : "VERIFY OTP";
     return "Submit";
   };
 
+  /** ------------------ Disable Button Logic ------------------ */
   const isDisabled = () => {
-    const path = location.pathname;
-    if (path === "/dashboard") return false; 
-    if (path.includes(`/pre_approved_share_details/${anchor}/pre-approved`)) return !isDetailsFormValid();
-    if (location.pathname.includes(`/${anchor}/pre_approved_buy_subscription`)) return subscriptions.length === 0;
+    if (path === "/dashboard") return false;
+    if (path.includes(`/pre_approved_share_details/${anchor}/pre-approved`))
+      return !isDetailsFormValid();
+    if (path === `/${anchor}/pre_approved_buy_subscription`)
+      return !selectedPlan;
     if (loginMode === "userid") return !isAuthFormValid();
-    if (loginMode === "phone") return step === 1 ? !isPhoneValid() : !isOtpValid();
+    if (loginMode === "phone")
+      return step === 1 ? !isPhoneValid() : !isOtpValid();
     return false;
   };
 

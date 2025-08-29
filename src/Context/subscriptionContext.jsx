@@ -1,8 +1,11 @@
 // Context/SubscriptionContext.jsx
 import { createContext, useContext, useEffect, useState } from "react";
 import { fetchSubscriptions } from "../Api/PlanCarsApi/planCardAPi.js";
-import { initiatePaymentAPI } from "../Api/RazorPay/RazorPayapi.js"; // separate API call
+import { initiatePaymentAPI } from "../Api/RazorPay/RazorPayapi.js"; 
 import { OtpContext } from "./OtpContext";
+import { PlanContext } from "./PlanContext.jsx";
+import { useSubscription } from "../Hooks/useSubsription.jsx";
+
 
 export const SubscriptionContext = createContext();
 
@@ -13,6 +16,10 @@ export const SubscriptionProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [purchasedPlan, setPurchasedPlan] = useState(null);
+  const { setIsPlanLoading} = useSubscription()
+
+  // 👇 NEW state for selected plan
+  const [selectedPlan, setSelectedPlan] = useState(null);
 
   const [applicationId, setApplicationId] = useState(
     contextAppId || localStorage.getItem("applicationId") || null
@@ -21,19 +28,16 @@ export const SubscriptionProvider = ({ children }) => {
     contextToken || localStorage.getItem("authToken") || null
   );
 
-  // Sync context updates
   useEffect(() => {
     if (contextAppId) setApplicationId(contextAppId);
     if (contextToken) setAuthToken(contextToken);
   }, [contextAppId, contextToken]);
 
-  // Load purchased plan from localStorage
   useEffect(() => {
     const saved = localStorage.getItem("purchasedPlan");
     if (saved) setPurchasedPlan(JSON.parse(saved));
   }, []);
 
-  // Fetch subscriptions
   useEffect(() => {
     async function loadSubscriptions() {
       if (!applicationId || !authToken) return;
@@ -57,6 +61,11 @@ export const SubscriptionProvider = ({ children }) => {
         }));
 
         setSubscriptions(plans);
+
+        // 👇 Set first plan as default selection
+        if (plans.length && !selectedPlan) {
+          setSelectedPlan(plans[0]);
+        }
       } catch (err) {
         setError(err.message || "Failed to fetch subscriptions");
       } finally {
@@ -67,46 +76,44 @@ export const SubscriptionProvider = ({ children }) => {
     loadSubscriptions();
   }, [applicationId, authToken]);
 
-  // Buy plan + Razorpay
-  const buyPlan = async (plan) => {
-    if (!plan) {
-      alert("Please select a plan to buy");
-      return false;
+ const buyPlan = async (plan) => {
+  if (!plan) {
+    alert("Please select a plan to buy");
+    return { status: "failed" };
+  }
+
+  if (!authToken || !applicationId) {
+    alert("Please login first to buy a plan");
+    return { status: "failed" };
+  }
+
+setIsPlanLoading(true)
+  try {
+    const payload = {
+      application_id: applicationId,
+      eservice: "pg-razorpay",
+      amount: plan.price.toString(),
+    };
+
+    // this should now return { status: "success" | "cancel" | "failed" }
+    const paymentResult = await initiatePaymentAPI(payload, authToken);
+
+    if (paymentResult?.status === "success") {
+      setPurchasedPlan(plan);
+      localStorage.setItem("purchasedPlan", JSON.stringify(plan));
+      return { status: "success" };
+    } else if (paymentResult?.status === "cancel") {
+      return { status: "cancel" };
+    } else {
+      return { status: "failed" };
     }
-
-    if (!authToken || !applicationId) {
-      alert("Please login first to buy a plan");
-      return false;
-    }
-
-    setLoading(true);
-    try {
-      // ✅ Prepare payload
-      const payload = {
-        application_id: applicationId,
-        eservice: "pg-razorpay",
-        amount: plan.price.toString(), // make sure it's a string
-      };
-
-      // ✅ Call Razorpay API
-      const paymentSuccess = await initiatePaymentAPI(payload, authToken,payload);
-
-      if (paymentSuccess) {
-        setPurchasedPlan(plan);
-        localStorage.setItem("purchasedPlan", JSON.stringify(plan));
-        return true; // payment succeeded
-      } else {
-        alert("Payment failed or was cancelled.");
-        return false; // payment failed
-      }
-    } catch (err) {
-      console.error("Payment failed:", err);
-      alert("Payment failed. Please try again.");
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  };
+  } catch (err) {
+    console.error("Payment failed:", err);
+    return { status: "failed" };
+  } finally {
+    setIsPlanLoading(false)
+  }
+};
 
   return (
     <SubscriptionContext.Provider
@@ -116,6 +123,8 @@ export const SubscriptionProvider = ({ children }) => {
         error,
         purchasedPlan,
         buyPlan,
+        selectedPlan,      // 👈 expose selected plan
+        setSelectedPlan,   // 👈 expose setter
       }}
     >
       {children}

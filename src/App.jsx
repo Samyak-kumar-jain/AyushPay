@@ -1,25 +1,26 @@
+// App.jsx
 import "./App.css";
-import {
-  createBrowserRouter,
-  RouterProvider,
-  Navigate,
-} from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 
 import HomePage from "./Pages/HomePage";
-import { AuthProvider } from "./Context/AuthContex";
 import Childoutlets from "./Pages/Childoutlets";
 import DetailsFrom from "./Components/Form/Details-from";
-import { OtpProvider } from "./Context/OtpContext";
-import { FormProvider } from "./Context/FormContext";
 import PlanPage from "./Pages/PlanPage";
 import { Payment } from "./Pages/Payment";
-import { PlansProvider } from "./Context/PaymentContext";
-import RouteGuard from "./Components/Protected/PrivateRoute.jsx";
 import Dashboard from "./Pages/Dashboard.jsx";
+
+// Context Providers
+import { AuthProvider } from "./Context/AuthContex";
+import { OtpProvider } from "./Context/OtpContext";
+import { FormProvider } from "./Context/FormContext";
+import { PlansProvider } from "./Context/PaymentContext";
 import { PlanProvider } from "./Context/PlanContext.jsx";
 import { BuyPlanProvider } from "./Context/BuyPlanContext.jsx";
 import { AnchorProvider } from "./Context/AnchorContext.jsx";
-import { SubscriptionProvider } from "./Context/subscriptionContext.jsx";
+import { SubscriptionProvider } from "./Context/SubscriptionContext.jsx";
+
+// Route Guard
+import RouteGuard from "./Components/Protected/PrivateRoute.jsx";
 
 function App() {
   const router = createBrowserRouter([
@@ -29,7 +30,7 @@ function App() {
       element: <Navigate to="/apay/subscription" replace />,
     },
 
-    // OTP/Login page (public route)
+    // OTP/Login page (public)
     {
       path: "/:anchor/:subscription",
       element: (
@@ -38,7 +39,7 @@ function App() {
         </RouteGuard>
       ),
       children: [
-        { index: true, element: <Childoutlets /> }, // OTP/login component
+        { index: true, element: <Childoutlets /> }, // OTP/Login form
         {
           path: "plans/payment-page",
           element: (
@@ -97,13 +98,13 @@ function App() {
         <OtpProvider>
           <FormProvider>
             <PlansProvider>
-              <SubscriptionProvider>
-                <PlanProvider>
+              <PlanProvider>
+                <SubscriptionProvider>
                   <BuyPlanProvider>
                     <RouterProvider router={router} />
                   </BuyPlanProvider>
-                </PlanProvider>
-              </SubscriptionProvider>
+                </SubscriptionProvider>
+              </PlanProvider>
             </PlansProvider>
           </FormProvider>
         </OtpProvider>

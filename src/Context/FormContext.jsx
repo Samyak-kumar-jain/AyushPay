@@ -32,18 +32,23 @@ export const FormProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
 
   // ✅ Validation
-  const validate = () => {
-    let tempErrors = {};
-    if (!formData.firstName.trim()) tempErrors.firstName = "First name is required";
-    if (!formData.lastName.trim()) tempErrors.lastName = "Last name is required";
-    if (!formData.email.trim()) {
-      tempErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
-      tempErrors.email = "Enter a valid email";
-    }
-    setErrors(tempErrors);
-    return Object.keys(tempErrors).length === 0;
-  };
+ // ✅ Validation
+const validate = () => {
+  let tempErrors = {};
+
+  // Only firstName and lastName are required
+  if (!formData.firstName.trim()) tempErrors.firstName = "First name is required";
+  if (!formData.lastName.trim()) tempErrors.lastName = "Last name is required";
+
+  // Email is optional; validate only if filled
+  if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+    tempErrors.email = "Enter a valid email";
+  }
+
+  setErrors(tempErrors);
+  return Object.keys(tempErrors).length === 0;
+};
+
 
   // ✅ Handle input change
   const handleChange = (e) => {

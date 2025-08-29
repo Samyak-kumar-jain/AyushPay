@@ -1,41 +1,29 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import PlansBenifit from "./PlansBenifit.jsx";
 import AyushPayLoader from "../Common/AyuspayLoader.jsx";
-import { usePlanSubscriptions } from "../../Hooks/usePlanSubscription.jsx";
+import { SubscriptionContext } from "../../Context/SubscriptionContext.jsx";
+import { useContext } from "react";
 import checkMark from "../../assets/CheckMark.png";
 
 export default function PlansCard() {
-  const { subscriptions = [], loading } = usePlanSubscriptions();
-
-  const [selected, setSelected] = useState(
-    subscriptions.length ? subscriptions[0].name : null
-  );
-
-  // If subscriptions change dynamically, update default selection
-  useEffect(() => {
-    if (subscriptions.length && !selected) {
-      setSelected(subscriptions[0].name);
-    }
-  }, [subscriptions]);
-
-  const selectedPlanObj = subscriptions.find((plan) => plan.name === selected);
-
-  const handleSelect = (planName) => setSelected(planName);
+  const { subscriptions = [], loading, selectedPlan, setSelectedPlan } =
+    useContext(SubscriptionContext);
 
   if (loading) return <AyushPayLoader />;
   if (!subscriptions.length) return <p>No plans available</p>;
-  
+
+  const handleSelect = (plan) => setSelectedPlan(plan);
 
   return (
     <>
       <div className="w-full p-2 overflow-x-auto no-scrollbar space-y-[25px]">
         <div className="flex space-x-[10px]">
           {subscriptions.map((plan, idx) => {
-            const isSelected = selected === plan.name;
+            const isSelected = selectedPlan?.name === plan.name;
             return (
               <div
                 key={idx}
-                onClick={() => handleSelect(plan.name)}
+                onClick={() => handleSelect(plan)}
                 className={`relative w-[110px] h-[130px] text-[10px] rounded-[12px] flex flex-col justify-between px-[8px] py-[20px] cursor-pointer transition 
                   ${
                     isSelected
@@ -81,13 +69,13 @@ export default function PlansCard() {
         </div>
       </div>
 
-      {selectedPlanObj && (
+      {selectedPlan && (
         <div className="mt-4">
           <PlansBenifit
-            selectedPlan={selectedPlanObj.name}
-            benefits={selectedPlanObj.benefits}
-            consultation = {selectedPlanObj.consultation}
-             saveOn = {selectedPlanObj.saveOn}
+            selectedPlan={selectedPlan.name}
+            benefits={selectedPlan.benefits}
+            consultation={selectedPlan.consultation}
+            saveOn={selectedPlan.saveOn}
           />
         </div>
       )}
